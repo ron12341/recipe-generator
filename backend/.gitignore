@@ -1,0 +1,16 @@
+node_modules/
+.env
+
+# Build outputs
+dist/
+
+# Logs
+*.log
+
+# IDE/editor specific
+.vscode/
+.idea/
+*.iml
+
+# Miscellaneous
+.DS_Store
