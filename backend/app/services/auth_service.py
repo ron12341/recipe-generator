@@ -2,10 +2,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import firebase_admin
 from firebase_admin import credentials, auth
-from .config import firebase_key_path
+from app.core.config import settings
 
 # Initialize Firebase credentials
-cred = credentials.Certificate(firebase_key_path)
+cred = credentials.Certificate(settings.FIREBASE_KEY_PATH)
 
 # Initialize FIrebase Admin SDK
 firebase_admin.initialize_app(cred)
@@ -24,6 +24,7 @@ def verify_firebase_token(id_token: str) -> dict:
         HTTPException: If the token is invalid, an HTTP 401 Unauthorized exception is raised.
     """
 
+    print("FIREBASE_KEY_PATH", settings.FIREBASE_KEY_PATH)
     try:
         # Verify the token with Firebase Admin SDKa
         decoded_token = auth.verify_id_token(id_token)

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, Table
-from unittest.mock import Base
+from app.core.database import Base
 
 """
 Define a many-to-many association table linking users and preferences

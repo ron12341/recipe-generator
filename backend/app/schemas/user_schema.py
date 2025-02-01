@@ -2,19 +2,18 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 class UserCreate(BaseModel):
-    username: str
+    id: str
     email: str
-    password: str   # password should be hashed
+    username: str | None = None
 
 class UserUpdate(BaseModel):
     username: Optional[str]
     email: Optional[str]
-    password: Optional[str]
 
-class User(BaseModel):
-    id: int
-    username: str
+class UserResponse(BaseModel):
+    id: str
     email: str
+    username: str | None
     recipes: List[int] # list of recipe ids
     preferences: List[int] # list of preference ids
 

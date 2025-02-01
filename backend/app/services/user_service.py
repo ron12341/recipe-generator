@@ -6,12 +6,11 @@ from app.core.security import get_password_hash
 
 
 def create_user(db: Session, user: UserCreate) -> UserModel:
-    # Hash the password
-    hashed_password = get_password_hash(user.password)
+
     new_user = UserModel(
+        id=user.id,
         username=user.username,
         email=user.email,
-        hashed_password=user.password
     )
 
     db.add(new_user)

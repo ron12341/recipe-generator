@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.schemas.recipe_schema import Recipe, RecipeCreate
 from app.models.recipe_model import Recipe as RecipeModel
 from app.models.user_model import User as UserModel
-from app.core.auth import get_current_user
+from app.services.auth_service import get_current_user
 
 router = APIRouter(
     prefix="/recipes",

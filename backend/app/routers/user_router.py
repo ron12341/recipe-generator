@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
-from app.schemas.user_schema import User, UserCreate
+from app.schemas.user_schema import UserResponse, UserCreate
 from app.models.user_model import User as UserModel
-from app.services.user_service import create_user, update_user
+from app.services.user_service import update_user
 
 router = APIRouter(
     prefix="/users",
@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 # Get all users
-@router.get("/", responsible_model=List[User])
+@router.get("/", response_model=List[UserResponse])
 async def get_users(db: Session = Depends(get_db)):
     """
     Get all users
@@ -24,7 +24,7 @@ async def get_users(db: Session = Depends(get_db)):
     return users
 
 # Get a User by ID
-@router.get("/{user_id}", response_model=User)
+@router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int, db: Session = Depends(get_db)):
     """
     Retrieve a user by their ID.
@@ -45,23 +45,8 @@ async def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-# Create a new User
-@router.post("/", response_model=User)
-async def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    """
-    Create a new user.
-
-    Args:
-        user (UserCreate): The user object to create.
-        db (Session): The database session dependency.
-
-    Returns:
-        User: The created user object.
-    """
-    return create_user(db, user)
-
 # Update a User by ID
-@router.put("/{user_id}", response_model=User)
+@router.put("/{user_id}", response_model=UserResponse)
 async def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
     """
     Update a user by their ID.

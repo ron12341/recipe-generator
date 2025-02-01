@@ -1,6 +1,7 @@
 import os
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
+from typing import List
 
 load_dotenv()
 
@@ -9,7 +10,7 @@ class Settings(BaseSettings):
 
     SECRET_KEY : str = os.getenv("SECRET_KEY")
 
-    ALLOWED_ORIGINS: list = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    ALLOWED_ORIGINS: List[str]
 
     FIREBASE_KEY_PATH : str = os.getenv("FIREBASE_KEY_PATH")
     

@@ -11,18 +11,15 @@ app = FastAPI(
 )
 
 # Allow CORS for frontend communication
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Initialize database
 @app.on_event("startup")
 async def startup_event():
     init_db()
@@ -33,8 +30,8 @@ def root():
     return {"message": "Welcome to the Smart Recipe Generator API!"}
 
 # Include routers
-app.include_router(recipe_router.router)
-app.include_router(auth_router.router)
-app.include_router(user_router.router)
-app.include_router(profile_router.router)
+app.include_router(recipe_router)
+app.include_router(auth_router)
+app.include_router(user_router)
+app.include_router(profile_router)
 
