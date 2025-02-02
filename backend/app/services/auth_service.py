@@ -23,8 +23,6 @@ def verify_firebase_token(id_token: str) -> dict:
     Raises:
         HTTPException: If the token is invalid, an HTTP 401 Unauthorized exception is raised.
     """
-
-    print("FIREBASE_KEY_PATH", settings.FIREBASE_KEY_PATH)
     try:
         # Verify the token with Firebase Admin SDKa
         decoded_token = auth.verify_id_token(id_token)
@@ -37,7 +35,7 @@ def verify_firebase_token(id_token: str) -> dict:
     
 def get_current_user(authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> dict:
     """
-    Gets the current user from a Firebase ID token.
+    Gets the current user from a Firebase ID token.a
 
     Args:
         authorization (HTTPAuthorizationCredentials): The Firebase ID token
