@@ -16,4 +16,4 @@ dist/
 .DS_Store
 
 # Ignore Firebase private key
-.etc
+etc/
