@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.database import init_db
+from app.core.database import init_db, drop_db
 from app.routers import recipe_router, auth_router, user_router, profile_router
+from app.core.database import Base, engine
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -19,10 +20,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize database
+
 @app.on_event("startup")
-async def startup_event():
-    init_db()
+async def startup():
+   init_db()
 
 # Root Endpoint
 @app.get("/")
