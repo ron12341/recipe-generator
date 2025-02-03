@@ -7,6 +7,8 @@ from app.core.security import get_password_hash
 
 def create_user(db: Session, user: UserCreate) -> UserModel:
 
+    print("CREATING USER...: ", user)
+
     new_user = UserModel(
         id=user.id,
         username=user.username,

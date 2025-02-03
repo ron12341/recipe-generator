@@ -11,46 +11,57 @@ export const signupUser = async (email, password) => {
         // Get the Firebase ID Token
         const idToken = await user.getIdToken(true);
 
+        console.log("ID TOKEN: ", idToken);
+
         // Send the token to the backend for verification
         const response = await axios.post('http://localhost:8000/auth/signup', {
             id_token: idToken,
             email: email
         });
 
-        if (response.status === 200) {
-            console.log('User signed up successfully');
-        } else {
-            throw new Error(response.data.detail || 'Signup failed');
-        }
+        console.log("RESPONSE: ", response);
+        console.log("RESPONSE DATA: ", response.data);
+
+        return response.data;
 
     } catch (error) {
-        console.error('Error signing up user:', error);
-        throw error;
+        if (error.code === 'auth/email-already-in-use') {
+            console.error('Email already in use');
+            return { error: 'Email already in use' };
+        } else {
+            console.error('Error signing up user:', error);
+            if (error.response) {
+                console.log("STATUS CODE: ", error.response.status);
+                console.log("ERROR MESSAGE: ", error.response.data);
+            }
+            throw error;
+        }
     }
 };
 
 export const loginUser = async (email, password) => {
     const auth = getAuth();
     try {
+
+        console.log("LOGGING IN USER");
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        const token = await user.getIdToken();
+        const idToken = await user.getIdToken();
 
-        // Send the token to the backend for verification
-        const response = await fetch('http://localhost:8080/user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
+        console.log("ID TOKEN: ", idToken);
+
+        const response = await axios.post('http://localhost:8000/auth/login', {
+            id_token: idToken,
+            email: email
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            return data;
+        console.log("RESPONSE: ", response);
+
+        if (response.status === 200) {
+            return response.data;
         } else {
-            throw new Error('User not found');
+            throw new Error('Login failed');
         }
 
     } catch (error) {
