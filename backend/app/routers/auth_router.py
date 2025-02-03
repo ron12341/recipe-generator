@@ -39,20 +39,28 @@ async def login(request: Request, db: Session = Depends(get_db)):
         uid = decoded_token.get("uid")
 
         # Check if the user already exists
-        user = db.query(UserModel).filter(UserModel.id == uid).first()
+        user : UserModel = db.query(UserModel).filter(UserModel.id == uid).first()
 
         print("USER: ", user)
 
         if not user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+            print("User does not exist in the database")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "User logged in successfully", "user": user},
+        # Create the user response
+        user_response = UserResponse(
+            **user.__dict__,
+            recipes=[],
+            preferences=[],
         )
 
+        return {"message": "User logged in successfully", "user": user_response}
+    
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+        print("Unexpected error: ", e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
     
 @router.post("/signup")
 async def signup(request: Request, db: Session = Depends(get_db)):
