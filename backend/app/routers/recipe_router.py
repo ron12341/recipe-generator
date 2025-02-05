@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
-from app.schemas.recipe_schema import Recipe, RecipeCreate
+from app.schemas.recipe_schema import RecipeResponse, RecipeCreate
 from app.models.recipe_model import Recipe as RecipeModel
 from app.models.user_model import User as UserModel
 from app.services.auth_service import get_current_user
@@ -13,13 +13,13 @@ router = APIRouter(
 )
 
 # Get all recipes
-@router.get("/", response_model=List[Recipe])
+@router.get("/", response_model=List[RecipeResponse])
 async def get_recipes(db: Session = Depends(get_db)):
     recipes = db.query(RecipeModel).all()
     return recipes
 
 # Get a Recipe by ID
-@router.get("/{recipe_id}", response_model=Recipe)
+@router.get("/{recipe_id}", response_model=RecipeResponse)
 async def get_recipe(recipe_id: int, db: Session = Depends(get_db)):
     recipe = db.query(RecipeModel).filter(RecipeModel.id == recipe_id).first()
     if recipe is None:
@@ -27,7 +27,7 @@ async def get_recipe(recipe_id: int, db: Session = Depends(get_db)):
     return recipe
 
 # Create a new recipe
-@router.post("/", response_model=Recipe)
+@router.post("/", response_model=RecipeResponse)
 async def create_recipe(recipe: RecipeCreate, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
     new_recipe = RecipeModel(
         name=recipe.name,
@@ -45,7 +45,7 @@ async def create_recipe(recipe: RecipeCreate, db: Session = Depends(get_db), cur
     return new_recipe
 
 # fetch current user's recipes
-@router.get("/user", response_model=List[Recipe])
+@router.get("/user", response_model=List[RecipeResponse])
 async def get_my_recipes(db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
     recipes = db.query(RecipeModel).filter(RecipeModel.user_id == current_user.id).all()
     return recipes

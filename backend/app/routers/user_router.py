@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
-from app.schemas.user_schema import UserResponse, UserCreate
+from app.schemas.user_schema import UserResponse, UserRequest, UserUpdate
 from app.models.user_model import User as UserModel
 from app.services.user_service import update_user
 
@@ -25,7 +25,7 @@ async def get_users(db: Session = Depends(get_db)):
 
 # Get a User by ID
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int, db: Session = Depends(get_db)):
+async def get_user(user_id: str, db: Session = Depends(get_db)):
     """
     Retrieve a user by their ID.
 
@@ -47,7 +47,7 @@ async def get_user(user_id: int, db: Session = Depends(get_db)):
 
 # Update a User by ID
 @router.put("/{user_id}", response_model=UserResponse)
-async def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
+async def update_user(user_id: str, user: UserUpdate, db: Session = Depends(get_db)):
     """
     Update a user by their ID.
 
@@ -66,7 +66,7 @@ async def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_
 
 # Delete a User by ID
 @router.delete("/{user_id}")
-async def delete_user(user_id: int, db: Session = Depends(get_db)):
+async def delete_user(user_id: str, db: Session = Depends(get_db)):
     """
     Delete a user by their ID.
 

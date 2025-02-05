@@ -9,7 +9,7 @@ class PreferenceUpdate(BaseModel):
     name: Optional[str]
     description: Optional[str]
 
-class Preference(BaseModel):
+class PreferenceResponse(BaseModel):
     name: str
     description: Optional[str]
 

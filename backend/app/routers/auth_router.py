@@ -1,38 +1,34 @@
 from fastapi import APIRouter, Depends, Request, HTTPException, status
-from fastapi.responses import JSONResponse
 from app.core.database import get_db
 from sqlalchemy.orm import Session
-from firebase_admin import auth
 from app.services.auth_service import verify_firebase_token
 from app.services.user_service import create_user
 from app.models.user_model import User as UserModel
-from app.schemas.user_schema import UserCreate, UserResponse
+from app.schemas.user_schema import UserRequest, UserResponse
 
 router = APIRouter(
     prefix="/auth",
     tags=["auth"],
 )
 
-
-@router.post("/login")
-async def login(request: Request, db: Session = Depends(get_db)):
+@router.post("/login", response_model=UserResponse, summary="Login a user", status_code=status.HTTP_200_OK)
+async def login(request: UserRequest, db: Session = Depends(get_db)):
+    
     """
-    Logs in a user with the given Bearer token.
+    Login a user using a Firebase ID token.
 
-    Args:
-        request (Request): The request object.
-        db (Session): The database session.
+    Parameters:
+    - request: The request containing the ID token.
+    - db: The database session.
 
     Returns:
-        dict: A dictionary containing the message and the user object.
+    - A UserResponse object with the user's details.
+
+    Raises:
+    - HTTPException: If the user is not found or if there is an internal error.
     """
-
     try:
-
-        print("Logging in...")
-        # Parse the JSON data from the request
-        body = await request.json()
-        id_token = body.get("id_token")
+        id_token = request.id_token
 
         # Verify the Firebase ID token
         decoded_token = verify_firebase_token(id_token)
@@ -47,14 +43,17 @@ async def login(request: Request, db: Session = Depends(get_db)):
             print("User does not exist in the database")
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
+        recipe_ids = [recipe.id for recipe in user.recipes]
+
         # Create the user response
         user_response = UserResponse(
-            **user.__dict__,
-            recipes=[],
+            id=user.id,
+            email=user.email,
+            recipes=recipe_ids,
             preferences=[],
         )
 
-        return {"message": "User logged in successfully", "user": user_response}
+        return user_response
     
     except HTTPException as e:
         raise e
@@ -62,15 +61,25 @@ async def login(request: Request, db: Session = Depends(get_db)):
         print("Unexpected error: ", e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
     
-@router.post("/signup")
-async def signup(request: Request, db: Session = Depends(get_db)):
+@router.post("/signup", response_model=UserResponse, summary="Create a new user", status_code=status.HTTP_201_CREATED)
+async def signup(request: UserRequest, db: Session = Depends(get_db)):
     
+    """
+    Creates a new user using a Firebase ID token.
+
+    Parameters:
+    - request: The request containing the ID token and the email address.
+    - db: The database session.
+
+    Returns:
+    - A UserResponse object with the user's details.
+
+    Raises:
+    - HTTPException: If the user is not found or if there is an internal error.
+    - HTTPException: If the user already exists.
+    """
     try:
-        # Parse the JSON data from the request
-        body = await request.json()
-        id_token = body.get("id_token")
-        request_email = body.get("email")
-        request_username = request_email.split("@")[0]
+        id_token = request.id_token
 
         # Verify the Firebase ID token
         decoded_token = verify_firebase_token(id_token)
@@ -81,14 +90,8 @@ async def signup(request: Request, db: Session = Depends(get_db)):
 
         if not user:
 
-            new_user = UserCreate(
-                id=uid,
-                email=request_email,
-                username=request_username
-            )
-
             # Create the user and add it to the database
-            user : UserModel = create_user(db, new_user)
+            user : UserModel = create_user(db, request)
 
             user_response = UserResponse(
                 **user.__dict__,
@@ -96,10 +99,10 @@ async def signup(request: Request, db: Session = Depends(get_db)):
                 preferences=[]
             )
 
-            return {"message": "User created successfully", "user": user_response}
+            return user_response
 
         else:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User already exists")
 
     except Exception as e:
         print("Error: ", e)

@@ -20,8 +20,8 @@ class RecipeUpdate(BaseModel):
     rating: Optional[float]
     servings: Optional[int]
 
-class Recipe(BaseModel):
-    id: int
+class RecipeResponse(BaseModel):
+    id: str
     name: str
     description: Optional[str]
     instructions: str

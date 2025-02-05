@@ -7,9 +7,8 @@ class User(Base):
 
     id = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    username = Column(String, unique=True, index=True, nullable=False)
 
-    recipes = relationship("Recipe", back_populates="user")
+    recipes = relationship("Recipe", back_populates="user", cascade="all, delete-orphan")
     preferences = relationship("Preference", secondary="user_preference_association", back_populates="users")
 
     
