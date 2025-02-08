@@ -5,11 +5,11 @@ from app.schemas.user_schema import UserRequest, UserUpdate
 from app.core.security import get_password_hash
 
 
-def create_user(db: Session, user: UserRequest) -> UserModel:
+def create_user(db: Session, uid: str, email: str) -> UserModel:
 
     new_user = UserModel(
-        id=user.id_token,
-        email=user.email,
+        id=uid,
+        email=email,
     )
 
     db.add(new_user)

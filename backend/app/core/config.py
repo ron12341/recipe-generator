@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     SECRET_KEY : str = os.getenv("SECRET_KEY")
 
+    OPENAI_API_KEY : str = os.getenv("OPENAI_API_KEY")
+
     ALLOWED_ORIGINS: List[str]
 
     FIREBASE_KEY_PATH : str = os.getenv("FIREBASE_KEY_PATH")
@@ -18,5 +20,3 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
-
-print(settings.FIREBASE_KEY_PATH)

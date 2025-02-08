@@ -85,13 +85,14 @@ async def signup(request: UserRequest, db: Session = Depends(get_db)):
         decoded_token = verify_firebase_token(id_token)
         uid = decoded_token.get("uid")
 
+        print("UID: ", uid)
+
         # Check if the user already exists
         user = db.query(UserModel).filter(UserModel.id == uid).first()
 
         if not user:
 
-            # Create the user and add it to the database
-            user : UserModel = create_user(db, request)
+            user : UserModel = create_user(db, uid, request.email)
 
             user_response = UserResponse(
                 **user.__dict__,
@@ -104,6 +105,8 @@ async def signup(request: UserRequest, db: Session = Depends(get_db)):
         else:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User already exists")
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        print("Error: ", e)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+        print("Unexpected error: ", e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")

@@ -12,3 +12,11 @@ class Ingredient(BaseModel):
 
     class Config:
         orm_mode = True
+
+class IngredientResponse(BaseModel):
+    name: str
+    quantity: str
+    unit: str
+
+    class Config:
+        orm_mode = True

@@ -27,10 +27,26 @@ def verify_firebase_token(id_token: str) -> dict:
         HTTPException: If the token is invalid, an HTTP 401 Unauthorized exception is raised.
     """
     try:
-        # Verify the token with Firebase Admin SDKa
-        decoded_token = auth.verify_id_token(id_token)
+        # Verify the token with Firebase Admin SDK and allow small clock skew
+        decoded_token = auth.verify_id_token(id_token, clock_skew_seconds=5)
         return decoded_token
+    except auth.ExpiredIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Firebase token has expired"
+        )
+    except auth.InvalidIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Firebase token"
+        )
+    except auth.RevokedIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Firebase token has been revoked"
+        )
     except Exception as e:
+        print(f"Error verifying Firebase token: {e}")  # Logs the exact error
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Firebase token"
