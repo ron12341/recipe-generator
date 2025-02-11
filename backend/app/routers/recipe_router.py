@@ -182,7 +182,7 @@ async def generate_recipe(request: RecipeGenerateRequest, db: Session = Depends(
 
         Remove the JSON wrapper from the response
         """
-a
+
         # client = OpenAI()
         # response = client.chat.completions.create(
         #     model="gpt-4o-mini",
